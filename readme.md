@@ -1,1 +1,1 @@
-<img src="./ti-banner.png>
+<img src="./ti-banner.png">

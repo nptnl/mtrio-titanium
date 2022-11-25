@@ -1,5 +1,7 @@
 <img src="./ti-banner.png">
 
+---
+
 # **Titanium:** most based math interface
 
 So we've all seen, like, TI-89 calculators, right?

@@ -23,12 +23,14 @@ enum Oprtr {
 
 fn main() {
     let mut input: String = String::new();
-    std::io::stdin().read_line(&mut input).expect("failed to read");
-    let input = input
-    .replace('(', " ( ")
-    .replace(')', " ) ");
-    let input: Vec<&str> = input.split_whitespace().collect();
-    println!("{:?}", complete(tokenize(input)).unwrap())
+    loop {
+        std::io::stdin().read_line(&mut input).expect("failed to read");
+        let input = input
+        .replace('(', " ( ")
+        .replace(')', " ) ");
+        let input: Vec<&str> = input.split_whitespace().collect();
+        println!("{:?}", complete(tokenize(input)).unwrap())
+    }
 }
 fn tokenize(input: Vec<&str>) -> Vec<Token> {
     let mut tkvec: Vec<Token> = Vec::new();
@@ -62,7 +64,9 @@ fn basic(operation: Token, v1: Token, v2: Token) -> Result<i32, ()> {
     }
 }
 fn complete(mut keys: Vec<Token>) -> Result<i32, ()> {
-    if keys.len() == 3 {
+    if keys.len() == 1 {
+        keys[0].extract()
+    } else if keys.len() == 3 {
         basic(keys[1], keys[0], keys[2])
     } else if keys.len() == 5 {
         basic(keys[2], keys[1], keys[3])

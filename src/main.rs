@@ -1,12 +1,12 @@
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Token {
-    Val(i32),
+    Val(f32),
     Op(Mfn),
     Begin(i32),
     End(i32),
 }
 impl Token {
-    fn extract(self) -> Result<i32, ()> {
+    fn extract(self) -> Result<f32, ()> {
         match self {
             Self::Val(v) => Ok(v),
             _ => Err(println!("you real ugly bruv")),
@@ -41,9 +41,9 @@ fn tokenize(input: Vec<&str>) -> Vec<Token> {
             "+" | "add" => Ok(Token::Op(Mfn::Add)),
             "-" | "sub" => Ok(Token::Op(Mfn::Sub)),
             "*" | "mul" => Ok(Token::Op(Mfn::Mul)),
-            "//" | "div" => Ok(Token::Op(Mfn::Div)),
+            "/" | "div" => Ok(Token::Op(Mfn::Div)),
             "sq" => Ok(Token::Op(Mfn::Square)),
-            _ => match word.parse::<i32>() {
+            _ => match word.parse::<f32>() {
                 Ok(v) => Ok(Token::Val(v)),
                 Err(_) => Err(println!("get good, invalid token")),
             }
@@ -52,8 +52,8 @@ fn tokenize(input: Vec<&str>) -> Vec<Token> {
     }
     tkvec
 }
-fn oneop(expr: Vec<Token>) -> Result<i32, ()> {
-    let mut output: i32 = 0;
+fn oneop(expr: Vec<Token>) -> Result<f32, ()> {
+    let mut output: f32 = 0.0;
     match expr[0] {
         Token::Op(Mfn::Add) => for addend in expr[1..].to_vec() {
             output += addend.extract().unwrap();
@@ -65,7 +65,7 @@ fn oneop(expr: Vec<Token>) -> Result<i32, ()> {
             };
         },
         Token::Op(Mfn::Mul) => {
-            output = 1i32;
+            output = 1f32;
             for factor in expr[1..].to_vec() {
             output *= factor.extract().unwrap();
             };
@@ -77,7 +77,7 @@ fn oneop(expr: Vec<Token>) -> Result<i32, ()> {
             };
         },
         Token::Op(Mfn::Square) => {
-            output = 1i32;
+            output = 1f32;
             for factor in expr[1..].to_vec() {
                 output *= factor.extract().unwrap() * factor.extract().unwrap()
             };
@@ -86,7 +86,7 @@ fn oneop(expr: Vec<Token>) -> Result<i32, ()> {
     };
     Ok(output)
 }
-fn complete(mut keys: Vec<Token>) -> Result<i32, ()> {
+fn complete(mut keys: Vec<Token>) -> Result<f32, ()> {
     let le: usize = keys.len();
     match (keys[0], keys[le-1]) {
         (Token::Begin(d1), Token::End(d2)) => if d1 == d2 { return complete(keys[1..le-1].to_vec()) }

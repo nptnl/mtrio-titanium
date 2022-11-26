@@ -3,5 +3,12 @@
 version = 3
 
 [[package]]
+name = "ferrum"
+version = "0.1.0"
+
+[[package]]
 name = "titanium"
 version = "0.1.0"
+dependencies = [
+ "ferrum",
+]

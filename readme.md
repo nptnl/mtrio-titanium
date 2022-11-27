@@ -25,6 +25,10 @@ in subtraction and division, the first value is subtracted/divided by each subse
 
 `- 10 1 2 1` returns 6, and `/ 10 5 2` returns 1.
 
+for multiple operations, simply use parenthesis:
+
+`* (+ 2 2) (- 5 3) (/ 6 3)` returns 16.
+
 in this format, the operations become much easier to extend to other math functions.
 
-*note: actual return values will be of type `ferrum::ch::Comp` to handle complex-valued operations.*
+*note: actual return values will always be of type `ferrum::ch::Comp` to handle complex-valued operations.*

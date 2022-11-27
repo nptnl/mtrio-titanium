@@ -1,4 +1,5 @@
 use ferrum::ch::Comp;
+use ferrum::alg::{exp, ln};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Token {
@@ -17,21 +18,21 @@ impl Token {
 }
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Mfn {
-    Add,
-    Sub,
-    Mul,
-    Div,
+    Add, Sub, Mul, Div,
     Square,
+    Exp, Pow, Ln, Log,
 }
 
 fn main() {
-    let mut input: String = String::new();
-    std::io::stdin().read_line(&mut input).expect("failed to read");
-    let input = input
-    .replace('(', " ( ")
-    .replace(')', " ) ");
-    let input: Vec<&str> = input.split_whitespace().collect();
-    println!("{:?}", complete(tokenize(input)).unwrap())
+    loop {
+        let mut input: String = String::new();
+        std::io::stdin().read_line(&mut input).expect("failed to read");
+        let input = input
+        .replace('(', " ( ")
+        .replace(')', " ) ");
+        let input: Vec<&str> = input.split_whitespace().collect();
+        println!("{:?}", complete(tokenize(input)).unwrap())
+    }
 }
 fn tokenize(input: Vec<&str>) -> Vec<Token> {
     let mut tkvec: Vec<Token> = Vec::new();
@@ -45,6 +46,10 @@ fn tokenize(input: Vec<&str>) -> Vec<Token> {
             "*" | "mul" => Ok(Token::Op(Mfn::Mul)),
             "/" | "div" => Ok(Token::Op(Mfn::Div)),
             "sq" => Ok(Token::Op(Mfn::Square)),
+            "exp" => Ok(Token::Op(Mfn::Exp)),
+            "pow" | "^" | "**" => Ok(Token::Op(Mfn::Pow)),
+            "ln" => Ok(Token::Op(Mfn::Ln)),
+            "log" => Ok(Token::Op(Mfn::Log)),
             _ => match word.parse::<Comp>() {
                 Ok(v) => Ok(Token::Val(v)),
                 Err(_) => Err(println!("get good, invalid token")),
@@ -85,6 +90,32 @@ fn oneop(expr: Vec<Token>) -> Result<Comp, ()> {
                 output *= factor.extract().unwrap() * factor.extract().unwrap()
             };
         },
+        Token::Op(Mfn::Exp) => {
+            for addend in expr[1..].to_vec() {
+                output += addend.extract().unwrap();
+            }
+            output = exp(output);
+        },
+        Token::Op(Mfn::Pow) => {
+            for addend in expr[2..].to_vec() {
+                output += addend.extract().unwrap();
+            }
+            output = expr[1].extract().unwrap().pow(output);
+        },
+        Token::Op(Mfn::Ln) => {
+            output = ferrum::ch::CC1;
+            for factor in expr[1..].to_vec() {
+                output *= factor.extract().unwrap();
+            }
+            output = ln(output);
+        },
+        Token::Op(Mfn::Log) => {
+            output = ferrum::ch::CC1;
+            for factor in expr[2..].to_vec() {
+                output *= factor.extract().unwrap();
+            }
+            output = output.log(expr[1].extract().unwrap());
+        }
         _ => return Err(println!("invalid operator, returning zero in this operation")),
     };
     Ok(output)

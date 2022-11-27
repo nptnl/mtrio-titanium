@@ -13,16 +13,18 @@ Titanium tokenizes, parses, and evaluates simple mathemetical expressions, and i
 
 Many initial capabilities will be to implement Ferrum functions into the syntax, but new systems will also be created.
 
-Currently, Titanium only works with real numbers and simple operations.
+Currently, Titanium only works with simple operations to evaluate expressions.
 
 ## **Syntax:**
 
 in lisp-style, the operator is placed first before the values, and all are separated by spaces:
 
-`* 3 3` returns `9.0`, and `+ 5 5 5` returns `15.0`.
+`* 3 3` returns 9, and `+ 5 5 5` returns 15.
 
 in subtraction and division, the first value is subtracted/divided by each subsequent value:
 
-`- 10 1 2 1` returns `6.0`, and `/ 10 5 2` returns `1.0`.
+`- 10 1 2 1` returns 6, and `/ 10 5 2` returns 1.
 
 in this format, the operations become much easier to extend to other math functions.
+
+*note: actual return values will be of type `ferrum::ch::Comp` to handle complex-valued operations.*

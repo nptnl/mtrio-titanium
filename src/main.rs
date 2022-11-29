@@ -1,5 +1,8 @@
 use ferrum::ch::Comp;
 use ferrum::alg::{exp, ln};
+use std::collections::{HashMap};
+
+pub mod lines;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Token {
@@ -24,14 +27,28 @@ enum Mfn {
 }
 
 fn main() {
+    let mut variables: HashMap<String, Comp> = HashMap::new();
+    let mut ans: Comp = ferrum::ch::CC0;
     loop {
-        let mut input: String = String::new();
+        let mut input = String::new();
         std::io::stdin().read_line(&mut input).expect("failed to read");
-        let input = input
-        .replace('(', " ( ")
-        .replace(')', " ) ");
-        let input: Vec<&str> = input.split_whitespace().collect();
-        println!("{:?}", complete(tokenize(input)).unwrap())
+        if &input[..2] == "->" {
+            variables.insert(
+                input.trim()[3..].to_string(),
+                ans,
+            );
+            println!("{:?}", variables[&input.trim()[3..].to_string()]);
+            continue;
+        } else if &input.trim() == &"var" {
+            for (name, value) in variables.clone() {
+                println!("{name} = {value:?}");
+            }
+        } else {
+            input = input.replace('(', " ( ").replace(')', " ) ");
+            let input: Vec<&str> = input.split_whitespace().collect();
+            ans = complete(tokenize(input)).unwrap();
+            println!("{ans:?}");
+        }
     }
 }
 fn tokenize(input: Vec<&str>) -> Vec<Token> {

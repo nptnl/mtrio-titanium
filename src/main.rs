@@ -2,8 +2,6 @@ use ferrum::ch::Comp;
 use ferrum::alg::{exp, ln};
 use std::collections::{HashMap};
 
-pub mod lines;
-
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Token {
     Val(Comp),

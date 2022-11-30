@@ -32,3 +32,10 @@ for multiple operations, simply use parenthesis:
 in this format, the operations become much easier to extend to other math functions.
 
 *note: actual return values will always be of type `ferrum::ch::Comp` to handle complex-valued operations.*
+
+---
+
+See my small math library that is the basis for this project at
+[Ferrum](https://github.com/nptnl/ferrum),
+and see a few visual applications for the math at
+[Chromium](https://github.com/nptnl/chromium).

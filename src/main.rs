@@ -44,12 +44,12 @@ fn main() {
         } else {
             input = input.replace('(', " ( ").replace(')', " ) ");
             let input: Vec<&str> = input.split_whitespace().collect();
-            ans = complete(tokenize(input)).unwrap();
+            ans = complete(tokenize(input, &variables)).unwrap();
             println!("{ans:?}");
         }
     }
 }
-fn tokenize(input: Vec<&str>) -> Vec<Token> {
+fn tokenize(input: Vec<&str>, varlist: &HashMap<String, Comp>) -> Vec<Token> {
     let mut tkvec: Vec<Token> = Vec::new();
     let mut depth: i32 = 0;
     for word in input {
@@ -67,7 +67,7 @@ fn tokenize(input: Vec<&str>) -> Vec<Token> {
             "log" => Ok(Token::Op(Mfn::Log)),
             _ => match word.parse::<Comp>() {
                 Ok(v) => Ok(Token::Val(v)),
-                Err(_) => Err(println!("get good, invalid token")),
+                Err(_) => Ok(Token::Val(varlist[word]))
             }
         };
         tkvec.push(to_add.unwrap());

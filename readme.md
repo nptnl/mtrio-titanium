@@ -13,7 +13,7 @@ Titanium tokenizes, parses, and evaluates simple mathemetical expressions, and i
 
 Many initial capabilities will be to implement Ferrum functions into the syntax, but new systems will also be created.
 
-Currently, Titanium only works with simple operations to evaluate expressions.
+Currently, Titanium's capabilities include variables and single-input mathematical functions, and will be expanded to solve equations.
 
 ## **Syntax:**
 
@@ -30,6 +30,10 @@ for multiple operations, simply use parenthesis:
 `* (+ 2 2) (- 5 3) (/ 6 3)` returns 16.
 
 in this format, the operations become much easier to extend to other math functions.
+
+`exp, pow, ln, log` act as operators for corresponding operators,
+`ass {varname} {value}` assigns a variable to any value, and
+`def {fname} {function}` creates a function using one input `'o'`.
 
 *note: actual return values will always be of type `ferrum::ch::Comp` to handle complex-valued operations.*
 

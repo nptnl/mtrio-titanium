@@ -8,6 +8,7 @@ enum Token {
     Op(Mfn),
     Begin(i32),
     End(i32),
+    Inp,
 }
 impl Token {
     fn extract(self) -> Result<Comp, ()> {
@@ -26,52 +27,74 @@ enum Mfn {
 
 fn main() {
     let mut variables: HashMap<String, Comp> = HashMap::new();
-    let mut ans: Comp = ferrum::ch::CC0;
+    let mut functions: HashMap<String, Vec<Token>> = HashMap::new();
+    let mut ans: Comp;
+
     loop {
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).expect("failed to read");
-        if &input[..2] == "->" {
-            variables.insert(
-                input.trim()[3..].to_string(),
-                ans,
-            );
-            println!("{:?}", variables[&input.trim()[3..].to_string()]);
-            continue;
-        } else if &input.trim() == &"var" {
-            for (name, value) in variables.clone() {
+        let input = input.replace('(', " ( ").replace(')', " ) ");
+        let working: Vec<&str> = input.split_whitespace().collect();
+
+        match working[0] {
+            "ass" => {
+                variables.insert(
+                working[1].to_string(),
+                complete(tokenize(working[2..].to_vec(), &variables, &functions)).unwrap(),
+                );
+            },
+            "def" => {
+                functions.insert(
+                working[1].to_string(),
+                tokenize(working[2..].to_vec(), &variables, &functions),
+                );
+            },
+            "variables" => for (name, value) in variables.clone() {
                 println!("{name} = {value:?}");
-            }
-        } else {
-            input = input.replace('(', " ( ").replace(')', " ) ");
-            let input: Vec<&str> = input.split_whitespace().collect();
-            ans = complete(tokenize(input, &variables)).unwrap();
-            println!("{ans:?}");
-        }
+            },
+            _ => {
+                ans = complete(tokenize(working, &variables, &functions)).unwrap();
+                println!("{ans:?}");
+            },
+        };
     }
 }
-fn tokenize(input: Vec<&str>, varlist: &HashMap<String, Comp>) -> Vec<Token> {
+fn tokenize(input: Vec<&str>, varlist: &HashMap<String, Comp>, fnlist: &HashMap<String, Vec<Token>>) -> Vec<Token> {
     let mut tkvec: Vec<Token> = Vec::new();
     let mut depth: i32 = 0;
-    for word in input {
-        let to_add: Result<Token, ()> = match word {
-            "(" => { depth += 1; Ok(Token::Begin(depth)) },
-            ")" => { depth -= 1; Ok(Token::End(depth + 1)) },
-            "+" | "add" => Ok(Token::Op(Mfn::Add)),
-            "-" | "sub" => Ok(Token::Op(Mfn::Sub)),
-            "*" | "mul" => Ok(Token::Op(Mfn::Mul)),
-            "/" | "div" => Ok(Token::Op(Mfn::Div)),
-            "sq" => Ok(Token::Op(Mfn::Square)),
-            "exp" => Ok(Token::Op(Mfn::Exp)),
-            "pow" | "^" | "**" => Ok(Token::Op(Mfn::Pow)),
-            "ln" => Ok(Token::Op(Mfn::Ln)),
-            "log" => Ok(Token::Op(Mfn::Log)),
-            _ => match word.parse::<Comp>() {
-                Ok(v) => Ok(Token::Val(v)),
-                Err(_) => Ok(Token::Val(varlist[word]))
-            }
+    for (indx, word) in input.iter().enumerate() {
+        let to_add: Token = match *word {
+            "(" => { depth += 1; Token::Begin(depth) },
+            ")" => { depth -= 1; Token::End(depth + 1) },
+            "o" => Token::Inp,
+            "+" | "add" => Token::Op(Mfn::Add),
+            "-" | "sub" => Token::Op(Mfn::Sub),
+            "*" | "mul" => Token::Op(Mfn::Mul),
+            "/" | "div" => Token::Op(Mfn::Div),
+            "sq" => Token::Op(Mfn::Square),
+            "exp" => Token::Op(Mfn::Exp),
+            "pow" | "^" | "**" => Token::Op(Mfn::Pow),
+            "ln" => Token::Op(Mfn::Ln),
+            "log" => Token::Op(Mfn::Log),
+            _ => {
+                let varposs: Option<Comp> = varlist.get(*word).copied();
+                let fnposs: Option<&Vec<Token>> = fnlist.get(*word);
+                let output: Token;
+                match varposs {
+                    Some(v) => output = Token::Val(v),
+                    None => match fnposs {
+                        Some(v) => output = Token::Val(evaluate(v.clone(), input[indx+1].parse::<Comp>().unwrap()).unwrap()),
+                        None => match word.parse::<Comp>() {
+                            Ok(v) => output = Token::Val(v),
+                            Err(_) => panic!("invalid token lmao"),
+                        }
+                    },
+                };
+                output
+            },
         };
-        tkvec.push(to_add.unwrap());
-    }
+        tkvec.push(to_add);
+    };
     tkvec
 }
 fn oneop(expr: Vec<Token>) -> Result<Comp, ()> {
@@ -135,6 +158,10 @@ fn oneop(expr: Vec<Token>) -> Result<Comp, ()> {
     };
     Ok(output)
 }
+fn evaluate(func: Vec<Token>, inp: Comp) -> Result<Comp, ()> {
+    let new: Vec<Token> = func.into_iter().map(|x| if x == Token::Inp { Token::Val(inp) } else { x } ).collect();
+    complete(new)
+}
 fn complete(mut keys: Vec<Token>) -> Result<Comp, ()> {
     let le: usize = keys.len();
     match (keys[0], keys[le-1]) {
@@ -144,7 +171,7 @@ fn complete(mut keys: Vec<Token>) -> Result<Comp, ()> {
     let mut le: bool = true;
     for word in &keys {
         match word {
-            Token::Begin(_d) => { le = false; break },
+            Token::Begin(_) => { le = false; break },
             _ => continue,
         }
     }
@@ -163,7 +190,8 @@ fn complete(mut keys: Vec<Token>) -> Result<Comp, ()> {
                     keys.drain(indx..end+1);
                     keys.insert(indx, Token::Val(collapsed.unwrap()));
                 },
-                Token::End(_) => return Err(println!("unopened close-paren"))
+                Token::End(_) => return Err(println!("unopened close-paren")),
+                _ => panic!("invalid token lmao"),
             };
             indx += 1;
         }

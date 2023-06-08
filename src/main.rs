@@ -1,6 +1,6 @@
 use ferrum::ch::Comp;
 use ferrum::alg::{exp, ln};
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Token {
@@ -37,7 +37,7 @@ fn main() {
         let working: Vec<&str> = input.split_whitespace().collect();
 
         match working[0] {
-            "ass" => {
+            "var" => {
                 variables.insert(
                 working[1].to_string(),
                 complete(tokenize(working[2..].to_vec(), &variables, &functions)).unwrap(),
@@ -49,7 +49,7 @@ fn main() {
                 tokenize(working[2..].to_vec(), &variables, &functions),
                 );
             },
-            "variables" => for (name, value) in variables.clone() {
+            "list" => for (name, value) in variables.clone() {
                 println!("{name} = {value:?}");
             },
             _ => {
@@ -86,7 +86,7 @@ fn tokenize(input: Vec<&str>, varlist: &HashMap<String, Comp>, fnlist: &HashMap<
                         Some(v) => output = Token::Val(evaluate(v.clone(), input[indx+1].parse::<Comp>().unwrap()).unwrap()),
                         None => match word.parse::<Comp>() {
                             Ok(v) => output = Token::Val(v),
-                            Err(_) => panic!("invalid token lmao"),
+                            Err(_) => panic!("invalid token: {word:?}"),
                         }
                     },
                 };
